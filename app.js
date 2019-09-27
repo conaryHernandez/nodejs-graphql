@@ -4,21 +4,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const graphqlHttp = require('express-graphql');
+
+const graphqlSchema = require('./graphql/schema');
+const graphqlResolver = require('./graphql/resolvers');
 // CONSTANTS
 const MONGODB_URI = 'mongodb://conaryh:k9X9MpdWnfHYcqMC@cluster0-shard-00-00-nvbxl.mongodb.net:27017,cluster0-shard-00-01-nvbxl.mongodb.net:27017,cluster0-shard-00-02-nvbxl.mongodb.net:27017/messages?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&w=majority';
 
 const app = express();
-const feedRoutes = require('./routes/feed');
-const authRoutes = require('./routes/auth');
-
-// const storage = multer.diskStorage({
-//     destination: function(req, file, cb) {
-//         cb(null, 'images');
-//     },
-//     filename: function(req, file, cb) {
-//         cb(null, uuidv4())
-//     }
-// });
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -42,6 +35,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
+
 app.use(bodyParser.json()); // application/json
 app.use(
     multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
@@ -56,9 +50,10 @@ app.use((req, res, next) => {
     next();
 });
 
-
-app.use('/feed', feedRoutes);
-app.use('/auth', authRoutes);
+app.use('/graphql', graphqlHttp({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver
+}));
 
 app.use((error, req, res, next) => {
     console.log(error);
@@ -71,11 +66,7 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
-        const server = app.listen(8080);
-        const io = require('./socket').init(server);
-        io.on('connection', socket => {
-            console.log('client connected');
-        })
+        app.listen(8080);
     })
     .catch(err => {
         console.log(err);
