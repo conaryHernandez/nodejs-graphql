@@ -8,10 +8,10 @@ module.exports = {
         const errors = [];
 
         if (!validator.isEmail(userInput.email)) {
-            errors.push({message: 'Invalid E-mail.'})
+            errors.push({ message: 'Invalid E-mail.' })
         }
-        if (validator.isEmpty(userInput.password) || !validator.isLength(userInput.password, {min: 5})) {
-            errors.push({message: 'Password too short!'})
+        if (validator.isEmpty(userInput.password) || !validator.isLength(userInput.password, { min: 5 })) {
+            errors.push({ message: 'Password too short!' })
         }
         if (errors.length > 0) {
             const error = new Error('Invalid Input Data');
@@ -58,13 +58,13 @@ module.exports = {
         if (!isEqual) {
             const error = new Error('Password is Invalid');
             error.code = 401;
-            throw error;            
+            throw error;
         }
 
         const token = jwt.sign({
             userId: user._id.toString(),
             email: user.email,
-        }, 'secret', {expires: '1h' });
+        }, 'secret', { expiresIn: '1h' });
 
         return {
             token,

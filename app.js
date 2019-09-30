@@ -47,10 +47,10 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*'); // allowing specific origins
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE'); // allowing specific origins to use our methods
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // allowing specific origins to set headers
-    if(req.method === 'OPTIONS') {
+    if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
-    
+
     next();
 });
 
@@ -72,7 +72,7 @@ app.use('/graphql', graphqlHttp({
             code,
             data
         };
-    } 
+    }
 }));
 
 app.use((error, req, res, next) => {
