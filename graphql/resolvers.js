@@ -266,14 +266,14 @@ module.exports = {
 
         return true;                
     },
-    getUserStatus: async function({id}, req) {
+    user: async function( args, req) {
         if (!req.isAuth) {
             const error = new Error('Not authenticated');
             error.code = 401;
             throw error;
         }
         
-        const user = await User.findById(id);
+        const user = await User.findById(req.userId);
 
         if (!user) {
             const error = new Error('Invalid User');
@@ -281,6 +281,27 @@ module.exports = {
             throw error;
         }
         
-        return user.status;
+        return {...user._doc, _id: user._id.toString()};
+    },
+    updateUserStatus: async function({status: newStatus}, req) {
+        if (!req.isAuth) {
+            const error = new Error('Not authenticated');
+            error.code = 401;
+            throw error;
+        }
+
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            const error = new Error('Invalid User');
+            error.code = 401;
+            throw error;
+        }
+        
+        user.status = newStatus;
+
+        await user.save();
+
+        return {...user._doc, _id: user._id.toString()};
     }
 };
