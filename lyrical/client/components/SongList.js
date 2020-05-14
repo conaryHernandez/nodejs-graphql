@@ -2,13 +2,20 @@ import React from 'react';
 import { Link } from 'react-router';
 import { graphql } from 'react-apollo';
 import { querySongList } from '../queries/fetchSongs';
+import { deleteSong } from '../queries/deleteSong';
 
-const SongList = ({ data }) => {
+const SongList = ({ data, mutate }) => {
+  const onSongDelete = (id) => {
+    mutate({
+      variables: { id },
+    });
+  };
+
   const renderSongs = () => {
     return data.songs.map(({ id, title }) => (
       <li className="collection-item" key={id}>
         <Link to={`/songs/${id}`}>{title}</Link>
-        <i className="material-icons red-text" onClick={() => deleteSong(id)}>
+        <i className="material-icons red-text" onClick={() => onSongDelete(id)}>
           delete
         </i>
       </li>
@@ -32,4 +39,4 @@ const SongList = ({ data }) => {
   );
 };
 
-export default graphql(querySongList)(SongList);
+export default graphql(deleteSong)(graphql(querySongList)(SongList));
