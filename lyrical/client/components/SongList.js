@@ -8,7 +8,7 @@ const SongList = ({ data }) => {
   const renderSongs = () => {
     return data.songs.map(({ id, title }) => (
       <li className="collection-item" key={id}>
-        <Link to={`/song/${id}`}>{title}</Link>
+        <Link to={`/songs/${id}`}>{title}</Link>
         <i className="material-icons red-text" onClick={() => deleteSong(id)}>
           delete
         </i>
@@ -20,12 +20,23 @@ const SongList = ({ data }) => {
     return <div>Loading...</div>;
   }
 
-  return <ul className="collection">{renderSongs()}</ul>;
+  return (
+    <div>
+      <ul className="collection">{renderSongs()}</ul>
+      <Link
+        to="/songs/new"
+        className="btn-floating btn-large blue darken-2 right"
+      >
+        <i className="material-icons">add</i>
+      </Link>
+    </div>
+  );
 };
 
 const query = gql`
   {
     songs {
+      id
       title
     }
   }

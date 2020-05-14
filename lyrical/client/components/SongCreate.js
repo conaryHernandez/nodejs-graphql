@@ -37,7 +37,7 @@ const SongCreate = ({ mutate }) => {
 const mutationAddSong = gql`
   mutation AddSong($title: String) {
     addSong(title: $title) {
-      id
+      _id
       title
     }
   }
