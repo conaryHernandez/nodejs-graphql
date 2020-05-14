@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, hashHistory } from 'react-router';
 import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 // import { querySongList, mutationAddSong } from '../queries';
 
@@ -12,7 +13,7 @@ const SongCreate = ({ mutate }) => {
 
     mutate({
       variables: { title: title },
-      refetchQueries: [{ query: querySongList }],
+      // refetchQueries: [{ query: querySongList }],
     }).then(() => hashHistory.push('/'));
   };
 
@@ -32,5 +33,14 @@ const SongCreate = ({ mutate }) => {
     </div>
   );
 };
+
+const mutationAddSong = gql`
+  mutation AddSong($title: String) {
+    addSong(title: $title) {
+      id
+      title
+    }
+  }
+`;
 
 export default graphql(mutationAddSong)(SongCreate);
