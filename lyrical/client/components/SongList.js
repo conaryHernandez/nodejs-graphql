@@ -8,7 +8,13 @@ const SongList = ({ data, mutate }) => {
   const onSongDelete = (id) => {
     mutate({
       variables: { id },
-    });
+    })
+      .then(() => {
+        data.refetch();
+      })
+      .catch((err) => {
+        console.log('error', error);
+      });
   };
 
   const renderSongs = () => {
