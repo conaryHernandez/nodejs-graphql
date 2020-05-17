@@ -8,6 +8,7 @@ export const querySong = gql`
       lyrics {
         id
         content
+        likes
       }
     }
   }
