@@ -26,27 +26,19 @@ passport.deserializeUser((id, done) => {
 // the password might not match the saved one.  In either case, we call the 'done'
 // callback, including a string that messages why the authentication process failed.
 // This string is provided back to the GraphQL client.
-passport.use(
-  new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
-    User.findOne({ email: email.toLowerCase() }, (err, user) => {
-      if (err) {
-        return done(err);
+passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
+  User.findOne({ email: email.toLowerCase() }, (err, user) => {
+    if (err) { return done(err); }
+    if (!user) { return done(null, false, 'Invalid Credentials'); }
+    user.comparePassword(password, (err, isMatch) => {
+      if (err) { return done(err); }
+      if (isMatch) {
+        return done(null, user);
       }
-      if (!user) {
-        return done(null, false, 'Unrecognised email address or password');
-      }
-      user.comparePassword(password, (err, isMatch) => {
-        if (err) {
-          return done(err);
-        }
-        if (isMatch) {
-          return done(null, user);
-        }
-        return done(null, false, 'Unrecognised email address or password');
-      });
+      return done(null, false, 'Invalid credentials.');
     });
-  })
-);
+  });
+}));
 
 // Creates a new user account.  We first check to see if a user already exists
 // with this email address to avoid making multiple accounts with identical addresses
@@ -57,22 +49,17 @@ passport.use(
 // for async code!  Awkward!
 function signup({ email, password, req }) {
   const user = new User({ email, password });
-  if (!email || !password) {
-    throw new Error('You must provide an email and password.');
-  }
+  if (!email || !password) { throw new Error('You must provide an email and password.'); }
 
   return User.findOne({ email })
     .then(existingUser => {
-      if (existingUser) {
-        throw new Error('That email address has already signed up');
-      }
+      if (existingUser) { throw new Error('Email in use'); }
       return user.save();
     })
     .then(user => {
       return new Promise((resolve, reject) => {
-        req.logIn(user, err => {
-          if (err) reject(err);
-
+        req.logIn(user, (err) => {
+          if (err) { reject(err); }
           resolve(user);
         });
       });
@@ -87,8 +74,7 @@ function signup({ email, password, req }) {
 function login({ email, password, req }) {
   return new Promise((resolve, reject) => {
     passport.authenticate('local', (err, user) => {
-      if (err) reject(err);
-      if (!user) reject(new Error('Unrecognised email address or password'));
+      if (!user) { reject('Invalid credentials.') }
 
       req.login(user, () => resolve(user));
     })({ body: { email, password } });
