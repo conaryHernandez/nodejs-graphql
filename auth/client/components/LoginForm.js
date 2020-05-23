@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { hashHistory } from 'react-router';
 import { graphql } from 'react-apollo';
 import AuthForm from './AuthForm';
 
@@ -12,11 +13,14 @@ const LoginForm = ({ mutate }) => {
     mutate({
       variables: { email, password },
       refetchQueries: [{ query }],
-    }).catch((res) => {
-      const errors = res.graphQLErrors.map((error) => error.message);
+      awaitRefetchQueries: true,
+    })
+      .then(() => hashHistory.push('/dashboard'))
+      .catch((res) => {
+        const errors = res.graphQLErrors.map((error) => error.message);
 
-      setErrors(errors);
-    });
+        setErrors(errors);
+      });
   };
 
   return (
@@ -27,4 +31,4 @@ const LoginForm = ({ mutate }) => {
   );
 };
 
-export default graphql(mutation)(LoginForm);
+export default graphql(mutation)(graphql(query)(LoginForm));
