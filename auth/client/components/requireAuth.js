@@ -4,14 +4,18 @@ import { graphql } from 'react-apollo';
 
 import GET_CURRENT_USER from '../queries/CurrentUser';
 
-const RequireAuth = ({ data }) => {
-  const { user, loading } = data;
+export default (WrappedComponent) => {
+  const RequireAuth = (props) => {
+    const { user, loading } = props.data;
 
-  useEffect(() => {
-    if (user && !loading) {
-      hashHistory.push('/login');
-    }
-  }, [user, hashHistory, loading]);
+    useEffect(() => {
+      if (!user && !loading) {
+        hashHistory.push('/login');
+      }
+    }, [user, hashHistory, loading]);
+
+    return <WrappedComponent {...props} />;
+  };
+
+  return graphql(GET_CURRENT_USER)(RequireAuth);
 };
-
-graphql(GET_CURRENT_USER)(RequireAuth);
