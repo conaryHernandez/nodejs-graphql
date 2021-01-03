@@ -1,7 +1,44 @@
-import { message } from './myModule';
-import add, { substract } from './math';
+import { GraphQLServer } from 'graphql-yoga';
 
-console.log('add', add(1, 2));
-console.log('substract', substract(3, 2));
+// Scalar Types  = String, Boolean, Int, Float, ID
 
-console.log('hello graphql!', message);
+// type definitions
+const typeDefs = `
+  type Query {
+    id: ID!
+    name: String!
+    age: Int!
+    employed: Boolean!
+    gpa: Float
+  }    
+`;
+
+// Resolvers
+const resolvers = {
+  Query: {
+    id() {
+      return '123456';
+    },
+    name() {
+      return 'Conary Hernandez!';
+    },
+    age() {
+      return 25;
+    },
+    employed() {
+      return true;
+    },
+    gpa() {
+      return 25.5;
+    },
+  },
+};
+
+const server = new GraphQLServer({
+  typeDefs,
+  resolvers,
+});
+
+server.start(() => {
+  console.log('The Server is running!');
+});
