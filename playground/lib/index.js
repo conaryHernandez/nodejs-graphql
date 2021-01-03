@@ -1,13 +1,39 @@
 "use strict";
 
-var _myModule = require("./myModule");
+var _graphqlYoga = require("graphql-yoga");
 
-var _math = _interopRequireWildcard(require("./math"));
+// Scalar Types  = String, Boolean, Int, Float, ID
+// type definitions
+const typeDefs = "\n  type Query {\n    id: ID!\n    name: String!\n    age: Int!\n    employed: Boolean!\n    gpa: Float\n  }    \n"; // Resolvers
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+const resolvers = {
+  Query: {
+    id() {
+      return '123456';
+    },
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+    name() {
+      return 'Conary Hernandez!';
+    },
 
-console.log('add', (0, _math.default)(1, 2));
-console.log('substract', (0, _math.substract)(3, 2));
-console.log('hello graphql!', _myModule.message);
+    age() {
+      return 25;
+    },
+
+    employed() {
+      return true;
+    },
+
+    gpa() {
+      return 25.5;
+    }
+
+  }
+};
+const server = new _graphqlYoga.GraphQLServer({
+  typeDefs,
+  resolvers
+});
+server.start(() => {
+  console.log('The Server is running!');
+});

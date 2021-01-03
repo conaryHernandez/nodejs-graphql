@@ -4,20 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "./node_modules/.bin/babel src --out-dir lib",
-    "dev": "babel-node src/index.js",
+    "start": "./node_modules/.bin/babel src --out-dir lib && node lib/index.js",
+    "dev": "nodemon src/index.js --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
+  "dependencies": {
     "@babel/cli": "^7.12.10",
     "@babel/core": "^7.12.10",
     "@babel/node": "^7.12.10",
-    "@babel/preset-env": "^7.12.11"
-  },
-  "dependencies": {
     "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.12.11",
     "graphql-yoga": "^1.18.3"
   }
 }
