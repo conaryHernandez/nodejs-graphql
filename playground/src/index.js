@@ -2,12 +2,54 @@ import { GraphQLServer } from 'graphql-yoga';
 
 // Scalar Types  = String, Boolean, Int, Float, ID
 
+// Demo Data
+const users = [
+  {
+    id: 1,
+    name: 'Conary',
+    email: 'Conary@example.com',
+    age: 25,
+  },
+  {
+    id: 2,
+    name: 'Sara',
+    email: 'Sara@example.com',
+    age: 30,
+  },
+  {
+    id: 3,
+    name: 'John',
+    email: 'John@example.com',
+    age: 20,
+  },
+];
+
+const posts = [
+  {
+    id: 1,
+    title: 'First Post',
+    body: 'this is a post 1',
+    published: 25,
+  },
+  {
+    id: 2,
+    title: 'second Post',
+    body: 'this is a post 2',
+    apublishedge: 30,
+  },
+  {
+    id: 3,
+    title: 'third Post',
+    body: 'this is a post 3',
+    published: 20,
+  },
+];
+
 // type definitions
 const typeDefs = `
   type Query {
-    greeting(name: String): String!
-    add(numbers: [Float!]!): Float!
-    grades: [Int!]!
+    users(query: String): [User!]!
+    posts(query: String): [Post!]!
     me: User!
     post: Post!
   }
@@ -30,24 +72,26 @@ const typeDefs = `
 // Resolvers
 const resolvers = {
   Query: {
-    greeting(parent, args, ctx, info) {
-      if (args.name) {
-        return `Hello! ${args.name}`;
+    users(parent, args, ctx, info) {
+      if (!args.query) {
+        return users;
       }
 
-      return 'Hello';
+      return users.filter((user) => {
+        return user.name.toLowerCase().includes(args.query.toLowerCase());
+      });
     },
-    add(parent, args, ctx, info) {
-      if (args.numbers.length === 0) {
-        return 0;
+    posts(parent, args, ctx, info) {
+      if (!args.query) {
+        return posts;
       }
 
-      return args.numbers.reduce((acc, currentValue) => {
-        return (acc += currentValue);
-      }, 0);
-    },
-    grades(parent, args, ctx, info) {
-      return [99, 80, 100];
+      return posts.filter((post) => {
+        return (
+          post.title.toLowerCase().includes(args.query.toLowerCase()) ||
+          post.body.toLowerCase().includes(args.query.toLowerCase())
+        );
+      });
     },
     me() {
       return {
