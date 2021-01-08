@@ -54,25 +54,25 @@ let comments = [
     id: 'comment-1',
     text: 'First Comment',
     author: '1',
-    post: 1,
+    post: '1',
   },
   {
     id: 'comment-2',
     text: 'second Comment',
     author: '1',
-    post: 1,
+    post: '1',
   },
   {
     id: 'comment-3',
     text: 'third Comment',
     author: '3',
-    post: 1,
+    post: '1',
   },
   {
     id: 'comment-4',
     text: 'forth Comment',
     author: '3',
-    post: 1,
+    post: '1',
   },
 ];
 
@@ -88,9 +88,11 @@ const typeDefs = `
 
   type Mutation {
     createUser(data: CreateUserInput!): User!
-    createPost(data: CreatePostInput!): Post!
-    createComment(data: CreateCommentInput!): Comment!
     deleteUser(id: ID!): User!
+    createPost(data: CreatePostInput!): Post!
+    deletePost(id: ID!): Post!
+    createComment(data: CreateCommentInput!): Comment!
+    deleteComment(id: ID!): Comment!
   }
 
   input CreateUserInput {
@@ -238,6 +240,19 @@ const resolvers = {
 
       return post;
     },
+    deletePost(parent, args, ctx, info) {
+      const postIndex = posts.findIndex((post) => post.id === args.id);
+
+      if (postIndex === -1) {
+        throw new Error('Post Not found!');
+      }
+
+      const deletedPosts = posts.splice(postIndex, 1);
+
+      comments = comments.filter((comment) => comment.post !== args.id);
+
+      return deletedPosts[0];
+    },
     createComment(parent, args, ctx, info) {
       const userExists = users.some((user) => user.id === args.data.author);
 
@@ -261,6 +276,19 @@ const resolvers = {
       comments.push(comment);
 
       return comment;
+    },
+    deleteComment(parent, args, ctx, info) {
+      const commentIndex = comments.findIndex(
+        (comment) => comment.id === args.id
+      );
+
+      if (commentIndex === -1) {
+        throw new Error('Comment Not found!');
+      }
+
+      const deletedPosts = comments.splice(commentIndex, 1);
+
+      return deletedPosts[0];
     },
   },
   Post: {
