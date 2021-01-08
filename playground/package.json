@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/babel src --out-dir lib && node lib/index.js",
-    "dev": "nodemon src/index.js --exec babel-node",
+    "dev": "nodemon src/index.js --ext js,graphql,json --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
