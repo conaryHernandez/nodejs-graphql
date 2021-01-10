@@ -2,37 +2,33 @@
 
 var _graphqlYoga = require("graphql-yoga");
 
-// Scalar Types  = String, Boolean, Int, Float, ID
-// type definitions
-const typeDefs = "\n  type Query {\n    id: ID!\n    name: String!\n    age: Int!\n    employed: Boolean!\n    gpa: Float\n  }    \n"; // Resolvers
+var _db = _interopRequireDefault(require("./db"));
 
-const resolvers = {
-  Query: {
-    id() {
-      return '123456';
-    },
+var _Query = _interopRequireDefault(require("./resolvers/Query"));
 
-    name() {
-      return 'Conary Hernandez!';
-    },
+var _Mutation = _interopRequireDefault(require("./resolvers/Mutation"));
 
-    age() {
-      return 25;
-    },
+var _User = _interopRequireDefault(require("./resolvers/User"));
 
-    employed() {
-      return true;
-    },
+var _Post = _interopRequireDefault(require("./resolvers/Post"));
 
-    gpa() {
-      return 25.5;
-    }
+var _Comment = _interopRequireDefault(require("./resolvers/Comment"));
 
-  }
-};
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// Resolvers
 const server = new _graphqlYoga.GraphQLServer({
-  typeDefs,
-  resolvers
+  typeDefs: './src/schema.graphql',
+  resolvers: {
+    Query: _Query.default,
+    Mutation: _Mutation.default,
+    User: _User.default,
+    Post: _Post.default,
+    Comment: _Comment.default
+  },
+  context: {
+    db: _db.default
+  }
 });
 server.start(() => {
   console.log('The Server is running!');
