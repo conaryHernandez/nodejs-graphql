@@ -44,6 +44,36 @@ const Mutation = {
 
     return deletedUsers[0];
   },
+  updateUser(parent, args, ctx, info) {
+    const { db } = ctx;
+    const { data } = args;
+
+    const user = db.users.find((user) => user.id === args.id);
+
+    if (!user) {
+      throw new Error('User not found!');
+    }
+
+    if (typeof data.email === 'string') {
+      const emailTaken = db.users.some((user) => user.email === args.email);
+
+      if (emailTaken) {
+        throw new Error('Email already taken!');
+      }
+
+      user.email = data.email;
+    }
+
+    if (typeof data.name === 'string') {
+      user.name = data.name;
+    }
+
+    if (typeof data.age !== 'undefined') {
+      user.age = data.age;
+    }
+
+    return user;
+  },
   createPost(parent, args, ctx, info) {
     const { db, pubSub } = ctx;
 
@@ -94,64 +124,6 @@ const Mutation = {
     }
 
     return post;
-  },
-  updateUser(parent, args, ctx, info) {
-    const { db } = ctx;
-    const { data } = args;
-
-    const user = db.users.find((user) => user.id === args.id);
-
-    if (!user) {
-      throw new Error('User not found!');
-    }
-
-    if (typeof data.email === 'string') {
-      const emailTaken = db.users.some((user) => user.email === args.email);
-
-      if (emailTaken) {
-        throw new Error('Email already taken!');
-      }
-
-      user.email = data.email;
-    }
-
-    if (typeof data.name === 'string') {
-      user.name = data.name;
-    }
-
-    if (typeof data.age !== 'undefined') {
-      user.age = data.age;
-    }
-
-    return user;
-  },
-  createComment(parent, args, ctx, info) {
-    const { db, pubSub } = ctx;
-
-    const userExists = db.users.some((user) => user.id === args.data.author);
-
-    if (!userExists) {
-      throw new Error('Invalid User.');
-    }
-
-    const postExists = db.posts.some(
-      (post) => post.id === args.data.post && post.published
-    );
-
-    if (!postExists) {
-      throw new Error('Invalid Post.');
-    }
-
-    const comment = {
-      id: uuidv4(),
-      ...args.data,
-    };
-
-    db.comments.push(comment);
-
-    pubSub.publish(`comment ${args.data.post}`, { comment });
-
-    return comment;
   },
   updatePost(parent, args, ctx, info) {
     const { db, pubSub } = ctx;
@@ -204,8 +176,41 @@ const Mutation = {
 
     return post;
   },
+  createComment(parent, args, ctx, info) {
+    const { db, pubSub } = ctx;
+
+    const userExists = db.users.some((user) => user.id === args.data.author);
+
+    if (!userExists) {
+      throw new Error('Invalid User.');
+    }
+
+    const postExists = db.posts.some(
+      (post) => post.id === args.data.post && post.published
+    );
+
+    if (!postExists) {
+      throw new Error('Invalid Post.');
+    }
+
+    const comment = {
+      id: uuidv4(),
+      ...args.data,
+    };
+
+    db.comments.push(comment);
+
+    pubSub.publish(`comment ${args.data.post}`, {
+      comment: {
+        mutation: 'CREATED',
+        data: comment,
+      },
+    });
+
+    return comment;
+  },
   deleteComment(parent, args, ctx, info) {
-    const { db } = ctx;
+    const { db, pubSub } = ctx;
 
     const commentIndex = db.comments.findIndex(
       (comment) => comment.id === args.id
@@ -215,12 +220,19 @@ const Mutation = {
       throw new Error('Comment Not found!');
     }
 
-    const deletedPosts = db.comments.splice(commentIndex, 1);
+    const deleteComment = db.comments.splice(commentIndex, 1);
 
-    return deletedPosts[0];
+    pubSub.publish(`comment ${deleteComment[0].post}`, {
+      comment: {
+        mutation: 'DELETED',
+        data: deleteComment[0],
+      },
+    });
+
+    return deleteComment[0];
   },
   updateComment(parent, args, ctx, info) {
-    const { db } = ctx;
+    const { db, pubSub } = ctx;
     const { data } = args;
 
     const comment = db.comments.find((comment) => comment.id === args.id);
@@ -232,6 +244,13 @@ const Mutation = {
     if (typeof data.text === 'string') {
       comment.text = data.text;
     }
+
+    pubSub.publish(`comment ${comment.post}`, {
+      comment: {
+        mutation: 'UPDATED',
+        data: comment,
+      },
+    });
 
     return comment;
   },
