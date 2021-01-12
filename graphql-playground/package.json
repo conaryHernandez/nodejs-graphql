@@ -20,6 +20,7 @@
     "@babel/node": "^7.12.10",
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.12.11",
+    "@prisma/client": "^2.14.0",
     "graphql-yoga": "^1.18.3",
     "uuid": "^8.3.2"
   }
