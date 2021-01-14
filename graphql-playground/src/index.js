@@ -1,5 +1,7 @@
 import { GraphQLServer, PubSub } from 'graphql-yoga';
-import db from './db';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // Resolvers
 import Query from './resolvers/Query';
@@ -23,7 +25,7 @@ const server = new GraphQLServer({
     Comment,
   },
   context: {
-    db,
+    db: prisma,
     pubSub,
   },
 });

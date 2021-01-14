@@ -1,23 +1,26 @@
 import uuidv4 from 'uuid/v4';
 
 const Mutation = {
-  createUser(parent, args, ctx, info) {
+  async createUser(parent, args, ctx, info) {
     const { db } = ctx;
 
-    const emailTaken = db.users.some((user) => user.email === args.data.email);
+    const emailTaken = await db.user.findUnique({
+      where: { email: args.data.email },
+    });
 
     if (emailTaken) {
       throw new Error('Email Taken.');
     }
 
     const user = {
-      id: uuidv4(),
       ...args.data,
     };
 
-    db.users.push(user);
+    const createdUser = await db.user.create({
+      data: user,
+    });
 
-    return user;
+    return createdUser;
   },
   deleteUser(parent, args, ctx, info) {
     const { db } = ctx;

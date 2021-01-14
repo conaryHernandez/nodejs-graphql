@@ -1,13 +1,17 @@
 const User = {
-  posts(parent, args, ctx, info) {
+  async posts(parent, args, ctx, info) {
     const { db } = ctx;
 
-    return db.posts.filter((post) => post.author === parent.id);
+    // pending
+    return await db.post.findMany({ where: { authorId: Number(parent.id) } });
   },
-  comments(parent, args, ctx, info) {
+  async comments(parent, args, ctx, info) {
     const { db } = ctx;
 
-    return db.comments.filter((comment) => comment.author === parent.id);
+    // pending
+    return await db.comment.findMany({
+      where: { authorId: Number(parent.id) },
+    });
   },
 };
 

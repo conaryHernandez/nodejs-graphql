@@ -1,14 +1,16 @@
 const Query = {
-  users(parent, args, ctx, info) {
+  async users(parent, args, ctx, info) {
     const { db } = ctx;
 
-    if (!args.query) {
-      return db.users;
-    }
+    try {
+      if (!args.query) {
+        return await db.user.findMany();
+      }
 
-    return db.users.filter((user) => {
-      return user.name.toLowerCase().includes(args.query.toLowerCase());
-    });
+      const response = await db.user.findMany({ where: { name: args.query } });
+
+      return response;
+    } catch (error) {}
   },
   posts(parent, args, ctx, info) {
     const { db } = ctx;
