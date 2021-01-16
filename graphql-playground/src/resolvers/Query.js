@@ -12,24 +12,27 @@ const Query = {
       return response;
     } catch (error) {}
   },
-  posts(parent, args, ctx, info) {
+  async posts(parent, args, ctx, info) {
     const { db } = ctx;
 
     if (!args.query) {
-      return db.posts;
+      return await db.post.findMany();
     }
 
-    return db.posts.filter((post) => {
-      return (
-        post.title.toLowerCase().includes(args.query.toLowerCase()) ||
-        post.body.toLowerCase().includes(args.query.toLowerCase())
-      );
+    const response = await db.post.findMany({
+      where:
+        AND[
+          ({ content: { contains: args.query.toLowerCase() } },
+          { title: { contains: args.query.toLowerCase() } })
+        ],
     });
+
+    return response;
   },
-  comments(parent, args, ctx, info) {
+  async comments(parent, args, ctx, info) {
     const { db } = ctx;
 
-    return db.comments || [];
+    return await db.comment.findMany();
   },
   me() {
     return {

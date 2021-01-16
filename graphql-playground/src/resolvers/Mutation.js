@@ -77,21 +77,25 @@ const Mutation = {
 
     return user;
   },
-  createPost(parent, args, ctx, info) {
+  async createPost(parent, args, ctx, info) {
     const { db, pubSub } = ctx;
 
-    const userExists = db.users.some((user) => user.id === args.data.author);
+    const userExists = await db.user.findUnique({
+      where: { id: Number(args.data.author) },
+    });
 
     if (!userExists) {
       throw new Error('Invalid User.');
     }
 
     const post = {
-      id: uuidv4(),
       ...args.data,
+      authorId: Number(args.data.author),
     };
 
-    db.posts.push(post);
+    const createdPost = await db.post.create({
+      data: post,
+    });
 
     if (args.data.published) {
       pubSub.publish('post', {
@@ -102,7 +106,7 @@ const Mutation = {
       });
     }
 
-    return post;
+    return createdPost;
   },
   deletePost(parent, args, ctx, info) {
     const { db, pubSub } = ctx;
