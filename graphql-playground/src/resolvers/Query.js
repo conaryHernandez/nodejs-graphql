@@ -7,7 +7,9 @@ const Query = {
         return await db.user.findMany();
       }
 
-      const response = await db.user.findMany({ where: { name: args.query } });
+      const response = await db.user.findMany({
+        where: { name: { contains: args.query.toLowerCase() } },
+      });
 
       return response;
     } catch (error) {}
